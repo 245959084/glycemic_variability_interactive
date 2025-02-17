@@ -1,20 +1,30 @@
 d3.csv("data/glucose_lunch.csv").then(data => {
     console.log("Data loaded:", data);
+
     // Parse the data
     data.forEach(d => {
-        if (d.time) {
-            d.time = d3.timeParse("%H:%M")(d.time.split(' ')[1]);
-        }
+        d.time = parseFloat(d[Object.keys(d)[0]]); // Read the first column as time
         for (let key in d) {
             if (key !== "time") {
-                d[key] = +d[key];
+                d[key] = +d[key]; // Convert to integer
             }
         }
     });
     console.log("Data parsed:", data);
 
+    // Convert time to string format
+    data.forEach(d => {
+        const hours = Math.floor(d.time);
+        const minutes = Math.round((d.time - hours) * 100);
+        if (d.time < 0) {
+            d.timeString = `-00:${Math.abs(100-minutes)}`;
+        } else {
+            d.timeString = `0${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+        }
+    });
+
     // Set the dimensions and margins of the graph
-    const margin = {top: 20, right: 30, bottom: 30, left: 40};
+    const margin = {top: 20, right: 30, bottom: 50, left: 40}; // Increased bottom margin for rotated labels
     const width = 800 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -28,39 +38,62 @@ d3.csv("data/glucose_lunch.csv").then(data => {
     console.log("SVG created");
 
     // Add X axis
-    const x = d3.scaleTime()
-        .domain(d3.extent(data, d => d.time))
+    const x = d3.scalePoint()
+        .domain(data.map(d => d.timeString))
         .range([0, width]);
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("transform", "rotate(-45)")
+        .style("text-anchor", "end");
     console.log("X axis added");
 
     // Add Y axis
     const y = d3.scaleLinear()
-        .domain([0, d3.max(data, d => d3.max(Object.values(d).filter(v => typeof v === 'number')))])
+        .domain([60, 220])
         .range([height, 0]);
     svg.append("g")
         .call(d3.axisLeft(y));
     console.log("Y axis added");
+
+    // Add vertical dashed line at 00:00
+    const lunchTimeX = x("00:00");
+    svg.append("line")
+        .attr("x1", lunchTimeX)
+        .attr("x2", lunchTimeX)
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("stroke", "black")
+        .attr("stroke-dasharray", "4");
+    svg.append("text")
+        .attr("x", lunchTimeX)
+        .attr("y", -5)
+        .attr("text-anchor", "middle")
+        .style("font-size", "12px")
+        .style("fill", "black")
+        .text("Lunch Time");
+    console.log("Vertical line and label added");
 
     // Color scale
     const color = d3.scaleOrdinal(d3.schemeCategory10);
 
     // Line generator
     const line = d3.line()
-        .x(d => x(d.time))
+        .x(d => x(d.timeString))
         .y(d => y(d.value));
 
     // Draw the lines
-    const patients = Object.keys(data[0]).filter(key => key !== "time");
+    const patients = Object.keys(data[0]).filter(key => key !== Object.keys(data[0])[0]);
     patients.forEach(patient => {
-        const validData = data.filter(d => d.time && !isNaN(d[patient]));
+        const validData = data.filter(d => !isNaN(d[patient]));
+        const pathData = validData.map(d => ({timeString: d.timeString, value: d[patient]}));
         svg.append("path")
-            .datum(validData.map(d => ({time: d.time, value: d[patient]})))
+            .datum(pathData)
             .attr("class", "line")
             .attr("d", line)
-            .style("stroke", color(patient));
+            .style("stroke", color(patient))
+            .style("fill", "none"); // Ensure the path is not filled
     });
     console.log("Lines drawn");
 
