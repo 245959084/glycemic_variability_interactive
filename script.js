@@ -100,6 +100,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         .attr("class", "legend")
         .attr("transform", (d, i) => `translate(0,${i * 15})`); // Vertical spacing
 
+
         legend.append("rect")
         .attr("x", width - 18)
         .attr("width", 12) // Smaller width
@@ -114,4 +115,105 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         .style("font-size", "10px") // Font size
         .text(d => d);
     console.log("Legend added");
+
+// // Append checkboxes next to each legend item
+// legend.append("foreignObject")
+//     .attr("x", width - 40) // Adjust position
+//     .attr("y", -5)
+//     .attr("width", 20)
+//     .attr("height", 20)
+//     .append("xhtml:input")
+//     .attr("type", "checkbox")
+//     .attr("checked", true) // Checked by default
+//     .on("change", function (event, d) {
+//         // Toggle visibility of corresponding line
+//         const isChecked = this.checked;
+//         svg.select(`.line-color-${patients.indexOf(d)}`)
+//             .style("display", isChecked ? "block" : "none");
+//     });
+    // Append checkboxes next to each legend item
+
+
+
+    // legend.append("foreignObject")
+    // .attr("x", width - 0) // Adjust position
+    // .attr("y", -5)
+    // .attr("width", 20)
+    // .attr("height", 20)
+    // .append("xhtml:input")
+    // .attr("type", "checkbox")
+    // .property("checked", false) // Initially unchecked
+    // .on("change", function(event, d) {  
+    //     const selectedIndex = patients.indexOf(d);
+    //     const isChecked = this.checked;
+    //     const allLines = svg.selectAll(".line");
+
+    //     if (isChecked) {
+    //         // Hide all lines first
+    //         allLines.style("display", "none");
+    //         // Show only the selected line
+    //         svg.select(`.line-color-${selectedIndex}`).style("display", "block");
+
+    //         // Uncheck all other checkboxes
+    //         d3.selectAll("input[type='checkbox']").property("checked", false);
+    //         // Keep only this checkbox checked
+    //         d3.select(this).property("checked", true);
+    //     } else {
+    //         // If unchecked, bring back all lines
+    //         allLines.style("display", "block");
+    //     }
+    // });
+    // Track the count of checked boxes
+    let checkedCount = 8; // Start with all checked
+
+    legend.append("foreignObject")
+        .attr("x", width - 0) // Adjust position
+        .attr("y", -5)
+        .attr("width", 20)
+        .attr("height", 20)
+        .append("xhtml:input")
+        .attr("type", "checkbox")
+        .property("checked", true) // Initially all checked
+        .on("change", function(event, d) {  
+            const selectedIndex = patients.indexOf(d);
+            const allLines = svg.selectAll(".line");
+            const isChecked = this.checked;
+
+            if (checkedCount === 8) {
+                // Step 2: If all are checked, uncheck all first
+                d3.selectAll("input[type='checkbox']").property("checked", false);
+                allLines.style("display", "none");
+
+                // Then, check only the selected one
+                d3.select(this).property("checked", true);
+                svg.select(`.line-color-${selectedIndex}`).style("display", "block");
+
+                checkedCount = 1; // Reset count to 1
+            } else {
+                if (isChecked) {
+                    // Step 3: Checking a new box (add one more line)
+                    svg.select(`.line-color-${selectedIndex}`).style("display", "block");
+                    checkedCount++;
+
+                    // Step 4: If count reaches 8 again, reset to all checked
+                    if (checkedCount === 8) {
+                        d3.selectAll("input[type='checkbox']").property("checked", true);
+                        allLines.style("display", "block");
+                    }
+                } else {
+                    // Step 5: If only one checkbox is checked and it's unchecked, reset to all
+                    if (checkedCount === 1) {
+                        d3.selectAll("input[type='checkbox']").property("checked", true);
+                        allLines.style("display", "block");
+                        checkedCount = 8;
+                    } else {
+                        // Otherwise, just hide the unchecked line
+                        svg.select(`.line-color-${selectedIndex}`).style("display", "none");
+                        checkedCount--;
+                    }
+                }
+            }
+        });
+
+
 });
