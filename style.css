@@ -1,0 +1,19 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+#chart {
+    margin: auto;
+    width: 80%;
+    height: 600px;
+}
+
+.line {
+    fill: none;
+    stroke-width: 2px;
+}
