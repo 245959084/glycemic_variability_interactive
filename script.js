@@ -125,26 +125,56 @@ d3.csv("data/glucose_lunch.csv").then(data => {
           
                 // 2) Show tooltip if we found a valid closest point
                 if (closestPoint) {
-                    focusCircle
-                    .style("display", null) // un-hide
-                    .attr("cx", x(closestPoint.timeString))
-                    .attr("cy", y(closestPoint.value));
-                    
-                  tooltip
-                    .style("opacity", 1)
-                    .html(`
-                      <strong>Time After Lunch:</strong> ${closestPoint.timeString}<br>
-                      <strong>${closestPoint.patient} Glucose:</strong> ${closestPoint.value}
-                    `)
-                    .style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 20) + "px");
+                    // V-compare mode is checked
+                    if (vc_checked){
+
+                        patients.forEach((patient, i) => {
+                            if ( linesSelected.length === 0 || linesSelected.includes(i)){
+                                const patientData = data.filter(d => !isNaN(d[patient]));
+                                const pathData = patientData.map(d => ({
+                                    timeString: d.timeString,
+                                    value: d[patient],
+                                    patient: patient
+                                }));
+                                const matchingPoint = pathData.find(pt => pt.timeString === closestPoint.timeString);
+                                if (matchingPoint){
+                                    svg.select(`.focus-circle-${i}`)
+                                        .style("display",null)
+                                        .attr("cx", x(matchingPoint.timeString))
+                                        .attr("cy", y(matchingPoint.value));
+                                }
+                            } else {}
+                        });
+                    } else { // V-compare mode is not checked
+                        focusCircle
+                            .style("display", null) // un-hide
+                            .attr("cx", x(closestPoint.timeString))
+                            .attr("cy", y(closestPoint.value));
+                        
+                        tooltip
+                            .style("opacity", 1)
+                            .html(`
+                            <strong>Time After Lunch:</strong> ${closestPoint.timeString}<br>
+                            <strong>${closestPoint.patient} Glucose:</strong> ${closestPoint.value}
+                            `)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 20) + "px");
+                    }
                 }
               })
               .on("mouseout", function() {
                 // Hide tooltip when leaving the line
-                // tooltip.style("opacity", 0);
-                focusCircle.style("display", "none");
+                if (vc_checked){
+                    patients.forEach((patient, i) => {
+                        svg.select(`.focus-circle-${i}`).style("display", "none");
+                    });
+                } else {
+                    focusCircle.style("display", "none");
+                }
+                
                 tooltip.style("opacity", 0);
+
+                
               });
             // .on("mouseover", function(event, d) {
             //     d3.select(this).style("stroke-width", "4px"); // highlight line
@@ -165,17 +195,63 @@ d3.csv("data/glucose_lunch.csv").then(data => {
             .style("fill", "transparent")
             .style("pointer-events", "all")
             .on("mouseover", function(event, d) {
-                d3.select(this).style("fill", "black"); // highlight point
-                tooltip.transition().duration(200).style("opacity", 1);
-                tooltip.html(`
-                    <strong>Time After Lunch:</strong> ${d.timeString} <br>
-                    <strong>${d.patient} Glucose:</strong> ${d.value}
-                `)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 20) + "px");
+                // V-compare mode is checked
+                if (vc_checked){
+                    const pointingTime = this.__data__.timeString;
+                    
+                    patients.forEach((patient, i) => {
+                        if ( linesSelected.length === 0 || linesSelected.includes(i)){
+                            const patientData = data.filter(d => !isNaN(d[patient]));
+                            const pathData = patientData.map(d => ({
+                                timeString: d.timeString,
+                                value: d[patient],
+                                patient: patient
+                            }));
+                            const matchingPoint = pathData.find(pt => pt.timeString === pointingTime);
+                            if (matchingPoint){
+                                svg.select(`.focus-circle-${i}`)
+                                    .style("display",null)
+                                    .attr("cx", x(matchingPoint.timeString))
+                                    .attr("cy", y(matchingPoint.value));
+                            }
+                        }
+                    });
+
+                    
+                    // Vertical dashed line at selected time
+                    const selectedTime = x(pointingTime);
+                    svg.append("line")
+                        .attr("class", "selectedTimeLine")
+                        .attr("x1", selectedTime)
+                        .attr("x2", selectedTime)
+                        .attr("y1", 0)
+                        .attr("y2", height)
+                        .attr("stroke", "red")
+                        .attr("stroke-dasharray", "4")
+                        .transition().duration(200);
+
+                } else {    // V-compare mode is not checked
+                    d3.select(this).style("fill", "black"); // highlight point
+                    tooltip.transition().duration(200).style("opacity", 1);
+                    tooltip.html(`
+                        <strong>Time After Lunch:</strong> ${d.timeString} <br>
+                        <strong>${d.patient} Glucose:</strong> ${d.value}
+                    `)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 20) + "px");
+                }
             })
             .on("mouseout", function() {
-                d3.select(this).style("fill", "transparent");
+                if (vc_checked){
+                    patients.forEach((patient, i) => {
+                        svg.select(`.focus-circle-${i}`).style("display", "none");
+                    });
+
+                    svg.selectAll(".selectedTimeLine").remove();
+                } else {
+                    d3.select(this).style("fill", "transparent");
+                }
+                
                 tooltip.transition().duration(200).style("opacity", 0);
             });
     });
@@ -216,6 +292,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
 
     // Add checkboxes in the legend
     legend.append("foreignObject")
+        .attr("class", "lineSelect")
         .attr("x", width - 0)
         .attr("y", -5)
         .attr("width", 20)
@@ -226,15 +303,21 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         .on("change", function(event, d) {
             const selectedIndex = patients.indexOf(d);
             const allLines = svg.selectAll(".line");
-            const allCircles = svg.selectAll("circle");
+            const allCircles = svg.selectAll(".circle");
             const isChecked = this.checked;
+
+            // update lines selected
+            if (linesSelected.includes(selectedIndex)){
+                linesSelected.splice(linesSelected.indexOf(selectedIndex),1);
+            } else {
+                linesSelected.push(selectedIndex);
+            }
 
             if (checkedCount === 8) {
                 // Step 2: If all are checked, uncheck all first
-                d3.selectAll("input[type='checkbox']").property("checked", false);
+                d3.selectAll(".lineSelect input").property("checked", false);
                 allLines.style("display", "none");
                 allCircles.style("display", "none");
-
                 // Then, check only the selected one
                 d3.select(this).property("checked", true);
                 svg.selectAll(`.line-color-${selectedIndex}, .circle-${selectedIndex}`)
@@ -248,18 +331,19 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                        .style("display", "block");
                     checkedCount++;
 
-                    // Step 4: If count reaches 8 again, reset to all checked
+                    // Step 4: If count reaches 8 again, reset to all checked, 
                     if (checkedCount === 8) {
-                        d3.selectAll("input[type='checkbox']").property("checked", true);
-                        allLines.style("display", "block");
-                        allCircles.style("display", "none");
+                        // d3.selectAll("input[type='checkbox']").property("checked", true);
+                        // allLines.style("display", "block");
+                        // allCircles.style("display", "none");
+                        linesSelected = [];
                     }
                 } else {
                     // Step 5: If only one checkbox is checked and it's unchecked, reset to all
                     if (checkedCount === 1) {
-                        d3.selectAll("input[type='checkbox']").property("checked", true);
+                        d3.selectAll(".lineSelect input").property("checked", true);
                         allLines.style("display", "block");
-                        allCircles.style("display", "none");
+                        allCircles.style("display", "block");
                         checkedCount = 8;
                     } else {
                         // Otherwise, just hide the unchecked line + circles
@@ -268,6 +352,39 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                         checkedCount--;
                     }
                 }
+            }
+        });
+
+    // Add mode in the legend
+    // global variable
+    let vc_checked = false;
+    let linesSelected = [];
+
+    const mode = svg.append("g")
+                    .attr("class", "mode")
+                    .attr("transform",`translate(-100,-10)`);
+    mode.append("text")
+        .attr("x", width - 30)
+        .attr("y", 0)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .style("font-size", "12px")
+        .text("V-compare");
+
+    mode.append("foreignObject")
+        .attr("class", "mode")
+        .attr("x", width + -30)
+        .attr("y", -10)
+        .attr("width", 20)
+        .attr("height", 20)
+        .append("xhtml:input")
+        .attr("type", "checkbox")
+        .property("checked", false) // Initially not checked
+        .on("change",function() {
+            if (this.checked){
+                vc_checked = true;
+            } else {
+                vc_checked = false;
             }
         });
   });
