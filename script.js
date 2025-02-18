@@ -188,7 +188,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         svg.selectAll(`.circle-${i}`)
             .data(pathData)
             .enter().append("circle")
-            .attr("class", `circle-${i}`)
+            .attr("class", `circle circle-${i}`)
             .attr("cx", d => x(d.timeString))
             .attr("cy", d => y(d.value))
             .attr("r", 4)
@@ -333,9 +333,9 @@ d3.csv("data/glucose_lunch.csv").then(data => {
 
                     // Step 4: If count reaches 8 again, reset to all checked, 
                     if (checkedCount === 8) {
-                        // d3.selectAll("input[type='checkbox']").property("checked", true);
+                        // d3.selectAll(".lineSelect input").property("checked", true);
                         // allLines.style("display", "block");
-                        // allCircles.style("display", "none");
+                        // allCircles.style("display", "block");
                         linesSelected = [];
                     }
                 } else {
