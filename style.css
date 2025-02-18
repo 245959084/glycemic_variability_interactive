@@ -17,3 +17,21 @@ h1 {
     fill: none;
     stroke-width: 2px;
 }
+
+/* Legend colors from shallow to deep blue */
+/* .line-color-0, .legend-color-0 { stroke: #7cbcf8; fill: #7cbcf8; }
+.line-color-1, .legend-color-1 { stroke: #ff8989; fill: #ff8989; }
+.line-color-2, .legend-color-2 { stroke: #3082af; fill: #3082af; }
+.line-color-3, .legend-color-3 { stroke: #ff3b3b; fill: #ff3b3b; }
+.line-color-4, .legend-color-4 { stroke: #1669a0; fill: #1669a0; }
+.line-color-5, .legend-color-5 { stroke: #d80000; fill: #d80000; }
+.line-color-6, .legend-color-6 { stroke: #9d0000; fill: #9d0000; }
+.line-color-7, .legend-color-7 { stroke: #0d4393; fill: #0d4393; } */
+.line-color-0, .legend-color-0 { stroke: #deebf7; fill: #deebf7; }
+.line-color-1, .legend-color-1 { stroke: #c6dbef; fill: #c6dbef; }
+.line-color-2, .legend-color-2 { stroke: #9ecae1; fill: #9ecae1; }
+.line-color-3, .legend-color-3 { stroke: #6baed6; fill: #6baed6; }
+.line-color-4, .legend-color-4 { stroke: #4292c6; fill: #4292c6; }
+.line-color-5, .legend-color-5 { stroke: #2171b5; fill: #2171b5; }
+.line-color-6, .legend-color-6 { stroke: #08519c; fill: #08519c; }
+.line-color-7, .legend-color-7 { stroke: #08306b; fill: #08306b; }

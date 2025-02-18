@@ -75,24 +75,20 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         .text("Lunch Time");
     console.log("Vertical line and label added");
 
-    // Color scale
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
-
     // Line generator
     const line = d3.line()
         .x(d => x(d.timeString))
         .y(d => y(d.value));
 
     // Draw the lines
-    const patients = Object.keys(data[0]).filter(key => key !== Object.keys(data[0])[0]);
-    patients.forEach(patient => {
+    const patients = Object.keys(data[0]).filter(key => key !== Object.keys(data[0])[0]).slice(0, -1);
+    patients.forEach((patient, i) => {
         const validData = data.filter(d => !isNaN(d[patient]));
         const pathData = validData.map(d => ({timeString: d.timeString, value: d[patient]}));
         svg.append("path")
             .datum(pathData)
-            .attr("class", "line")
+            .attr("class", `line line-color-${i}`) // Add class for CSS styling
             .attr("d", line)
-            .style("stroke", color(patient))
             .style("fill", "none"); // Ensure the path is not filled
     });
     console.log("Lines drawn");
@@ -102,19 +98,20 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         .data(patients)
         .enter().append("g")
         .attr("class", "legend")
-        .attr("transform", (d, i) => `translate(0,${i * 20})`);
+        .attr("transform", (d, i) => `translate(0,${i * 15})`); // Vertical spacing
 
-    legend.append("rect")
+        legend.append("rect")
         .attr("x", width - 18)
-        .attr("width", 18)
-        .attr("height", 18)
-        .style("fill", color);
+        .attr("width", 12) // Smaller width
+        .attr("height", 12) // Smaller height
+        .attr("class", (d, i) => `legend-color-${i}`); // Add class for CSS styling
 
     legend.append("text")
         .attr("x", width - 24)
-        .attr("y", 9)
+        .attr("y", 6)
         .attr("dy", ".35em")
         .style("text-anchor", "end")
+        .style("font-size", "10px") // Font size
         .text(d => d);
     console.log("Legend added");
 });
