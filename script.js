@@ -125,26 +125,54 @@ d3.csv("data/glucose_lunch.csv").then(data => {
           
                 // 2) Show tooltip if we found a valid closest point
                 if (closestPoint) {
-                    focusCircle
-                    .style("display", null) // un-hide
-                    .attr("cx", x(closestPoint.timeString))
-                    .attr("cy", y(closestPoint.value));
-                    
-                  tooltip
-                    .style("opacity", 1)
-                    .html(`
-                      <strong>Time After Lunch:</strong> ${closestPoint.timeString}<br>
-                      <strong>${closestPoint.patient} Glucose:</strong> ${closestPoint.value}
-                    `)
-                    .style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 20) + "px");
+                    // V-compare mode is checked
+                    if (vc_checked){
+
+                        patients.forEach((patient, i) => {
+                            const patientData = data.filter(d => !isNaN(d[patient]));
+                            const pathData = patientData.map(d => ({
+                                timeString: d.timeString,
+                                value: d[patient],
+                                patient: patient
+                            }));
+                            const matchingPoint = pathData.find(pt => pt.timeString === closestPoint.timeString);
+                            if (matchingPoint){
+                                svg.select(`.focus-circle-${i}`)
+                                    .style("display",null)
+                                    .attr("cx", x(matchingPoint.timeString))
+                                    .attr("cy", y(matchingPoint.value));
+                            }
+                        });
+                    } else { // V-compare mode is not checked
+                        focusCircle
+                            .style("display", null) // un-hide
+                            .attr("cx", x(closestPoint.timeString))
+                            .attr("cy", y(closestPoint.value));
+                        
+                        tooltip
+                            .style("opacity", 1)
+                            .html(`
+                            <strong>Time After Lunch:</strong> ${closestPoint.timeString}<br>
+                            <strong>${closestPoint.patient} Glucose:</strong> ${closestPoint.value}
+                            `)
+                            .style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 20) + "px");
+                    }
                 }
               })
               .on("mouseout", function() {
                 // Hide tooltip when leaving the line
-                // tooltip.style("opacity", 0);
-                focusCircle.style("display", "none");
+                if (vc_checked){
+                    patients.forEach((patient, i) => {
+                        svg.select(`.focus-circle-${i}`).style("display", "none");
+                    });
+                } else {
+                    focusCircle.style("display", "none");
+                }
+                
                 tooltip.style("opacity", 0);
+
+                
               });
             // .on("mouseover", function(event, d) {
             //     d3.select(this).style("stroke-width", "4px"); // highlight line
@@ -165,17 +193,45 @@ d3.csv("data/glucose_lunch.csv").then(data => {
             .style("fill", "transparent")
             .style("pointer-events", "all")
             .on("mouseover", function(event, d) {
-                d3.select(this).style("fill", "black"); // highlight point
-                tooltip.transition().duration(200).style("opacity", 1);
-                tooltip.html(`
-                    <strong>Time After Lunch:</strong> ${d.timeString} <br>
-                    <strong>${d.patient} Glucose:</strong> ${d.value}
-                `)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 20) + "px");
+                // V-compare mode is checked
+                if (vc_checked){
+                    const pointingTime = this.__data__.timeString;
+                    
+                    patients.forEach((patient, i) => {
+                        const patientData = data.filter(d => !isNaN(d[patient]));
+                        const pathData = patientData.map(d => ({
+                            timeString: d.timeString,
+                            value: d[patient],
+                            patient: patient
+                        }));
+                        const matchingPoint = pathData.find(pt => pt.timeString === pointingTime);
+                        if (matchingPoint){
+                            svg.select(`.focus-circle-${i}`)
+                                .style("display",null)
+                                .attr("cx", x(matchingPoint.timeString))
+                                .attr("cy", y(matchingPoint.value));
+                        }
+                    });
+                } else {    // V-compare mode is not checked
+                    d3.select(this).style("fill", "black"); // highlight point
+                    tooltip.transition().duration(200).style("opacity", 1);
+                    tooltip.html(`
+                        <strong>Time After Lunch:</strong> ${d.timeString} <br>
+                        <strong>${d.patient} Glucose:</strong> ${d.value}
+                    `)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 20) + "px");
+                }
             })
             .on("mouseout", function() {
-                d3.select(this).style("fill", "transparent");
+                if (vc_checked){
+                    patients.forEach((patient, i) => {
+                        svg.select(`.focus-circle-${i}`).style("display", "none");
+                    });
+                } else {
+                    d3.select(this).style("fill", "transparent");
+                }
+                
                 tooltip.transition().duration(200).style("opacity", 0);
             });
     });
@@ -272,6 +328,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         });
 
     // Add mode in the legend
+    let vc_checked = false;
     const mode = svg.append("g")
                     .attr("class", "mode")
                     .attr("transform",`translate(-100,-10)`);
@@ -290,5 +347,12 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         .attr("height", 20)
         .append("xhtml:input")
         .attr("type", "checkbox")
-        .property("checked", false); // Initially not checked
+        .property("checked", false) // Initially not checked
+        .on("change",function() {
+            if (this.checked){
+                vc_checked = true;
+            } else {
+                vc_checked = false;
+            }
+        });
   });
