@@ -198,7 +198,8 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                 // V-compare mode is checked
                 if (vc_checked){
                     const pointingTime = this.__data__.timeString;
-                    
+                    const matchingPointsArray = [];
+
                     patients.forEach((patient, i) => {
                         if ( linesSelected.length === 0 || linesSelected.includes(i)){
                             const patientData = data.filter(d => !isNaN(d[patient]));
@@ -213,6 +214,9 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                                     .style("display",null)
                                     .attr("cx", x(matchingPoint.timeString))
                                     .attr("cy", y(matchingPoint.value));
+
+                                    // update matching points array for later tooltip use
+                                    matchingPointsArray.push(matchingPoint);
                             }
                         }
                     });
@@ -229,6 +233,21 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                         .attr("stroke", "red")
                         .attr("stroke-dasharray", "4")
                         .transition().duration(200);
+
+                    // create tooltip
+                    tooltip.transition().duration(200).style("opacity", 1);
+                    tooltip.html("");
+                    tooltip.append("div").html(`
+                        <strong>Time After Lunch:</strong> ${this.__data__.timeString}
+                        `);
+                    for (let point of matchingPointsArray.sort((a,b) => b.value - a.value)){
+                        tooltip.append("div").html(`
+                            <strong>${point.patient} Glucose:</strong> ${point.value}
+                        `);
+                    }
+
+                    tooltip.style("left", (event.pageX + 10) + "px")
+                            .style("top", (event.pageY - 20) + "px");
 
                 } else {    // V-compare mode is not checked
                     d3.select(this).style("fill", "black"); // highlight point
