@@ -407,7 +407,3 @@ d3.csv("data/glucose_lunch.csv").then(data => {
             }
         });
   });
-
-
-
-//   现存问题：v-compare 模式下，点会在线下
