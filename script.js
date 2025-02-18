@@ -129,19 +129,21 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                     if (vc_checked){
 
                         patients.forEach((patient, i) => {
-                            const patientData = data.filter(d => !isNaN(d[patient]));
-                            const pathData = patientData.map(d => ({
-                                timeString: d.timeString,
-                                value: d[patient],
-                                patient: patient
-                            }));
-                            const matchingPoint = pathData.find(pt => pt.timeString === closestPoint.timeString);
-                            if (matchingPoint){
-                                svg.select(`.focus-circle-${i}`)
-                                    .style("display",null)
-                                    .attr("cx", x(matchingPoint.timeString))
-                                    .attr("cy", y(matchingPoint.value));
-                            }
+                            if ( linesSelected.length === 0 || linesSelected.includes(i)){
+                                const patientData = data.filter(d => !isNaN(d[patient]));
+                                const pathData = patientData.map(d => ({
+                                    timeString: d.timeString,
+                                    value: d[patient],
+                                    patient: patient
+                                }));
+                                const matchingPoint = pathData.find(pt => pt.timeString === closestPoint.timeString);
+                                if (matchingPoint){
+                                    svg.select(`.focus-circle-${i}`)
+                                        .style("display",null)
+                                        .attr("cx", x(matchingPoint.timeString))
+                                        .attr("cy", y(matchingPoint.value));
+                                }
+                            } else {}
                         });
                     } else { // V-compare mode is not checked
                         focusCircle
@@ -198,18 +200,20 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                     const pointingTime = this.__data__.timeString;
                     
                     patients.forEach((patient, i) => {
-                        const patientData = data.filter(d => !isNaN(d[patient]));
-                        const pathData = patientData.map(d => ({
-                            timeString: d.timeString,
-                            value: d[patient],
-                            patient: patient
-                        }));
-                        const matchingPoint = pathData.find(pt => pt.timeString === pointingTime);
-                        if (matchingPoint){
-                            svg.select(`.focus-circle-${i}`)
-                                .style("display",null)
-                                .attr("cx", x(matchingPoint.timeString))
-                                .attr("cy", y(matchingPoint.value));
+                        if ( linesSelected.length === 0 || linesSelected.includes(i)){
+                            const patientData = data.filter(d => !isNaN(d[patient]));
+                            const pathData = patientData.map(d => ({
+                                timeString: d.timeString,
+                                value: d[patient],
+                                patient: patient
+                            }));
+                            const matchingPoint = pathData.find(pt => pt.timeString === pointingTime);
+                            if (matchingPoint){
+                                svg.select(`.focus-circle-${i}`)
+                                    .style("display",null)
+                                    .attr("cx", x(matchingPoint.timeString))
+                                    .attr("cy", y(matchingPoint.value));
+                            }
                         }
                     });
 
@@ -288,6 +292,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
 
     // Add checkboxes in the legend
     legend.append("foreignObject")
+        .attr("class", "lineSelect")
         .attr("x", width - 0)
         .attr("y", -5)
         .attr("width", 20)
@@ -301,12 +306,18 @@ d3.csv("data/glucose_lunch.csv").then(data => {
             const allCircles = svg.selectAll(".circle");
             const isChecked = this.checked;
 
+            // update lines selected
+            if (linesSelected.includes(selectedIndex)){
+                linesSelected.splice(linesSelected.indexOf(selectedIndex),1);
+            } else {
+                linesSelected.push(selectedIndex);
+            }
+
             if (checkedCount === 8) {
                 // Step 2: If all are checked, uncheck all first
-                d3.selectAll("input[type='checkbox']").property("checked", false);
+                d3.selectAll(".lineSelect input").property("checked", false);
                 allLines.style("display", "none");
                 allCircles.style("display", "none");
-
                 // Then, check only the selected one
                 d3.select(this).property("checked", true);
                 svg.selectAll(`.line-color-${selectedIndex}, .circle-${selectedIndex}`)
@@ -320,16 +331,17 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                        .style("display", "block");
                     checkedCount++;
 
-                    // // Step 4: If count reaches 8 again, reset to all checked, NOT NECESSARY, SINCE IF REACH 8 THEN IT IS 8
-                    // if (checkedCount === 8) {
-                    //     d3.selectAll("input[type='checkbox']").property("checked", true);
-                    //     allLines.style("display", "block");
-                    //     allCircles.style("display", "none");
-                    // }
+                    // Step 4: If count reaches 8 again, reset to all checked, 
+                    if (checkedCount === 8) {
+                        // d3.selectAll("input[type='checkbox']").property("checked", true);
+                        // allLines.style("display", "block");
+                        // allCircles.style("display", "none");
+                        linesSelected = [];
+                    }
                 } else {
                     // Step 5: If only one checkbox is checked and it's unchecked, reset to all
                     if (checkedCount === 1) {
-                        d3.selectAll("input[type='checkbox']").property("checked", true);
+                        d3.selectAll(".lineSelect input").property("checked", true);
                         allLines.style("display", "block");
                         allCircles.style("display", "block");
                         checkedCount = 8;
@@ -344,7 +356,10 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         });
 
     // Add mode in the legend
+    // global variable
     let vc_checked = false;
+    let linesSelected = [];
+
     const mode = svg.append("g")
                     .attr("class", "mode")
                     .attr("transform",`translate(-100,-10)`);
@@ -357,6 +372,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         .text("V-compare");
 
     mode.append("foreignObject")
+        .attr("class", "mode")
         .attr("x", width + -30)
         .attr("y", -10)
         .attr("width", 20)
