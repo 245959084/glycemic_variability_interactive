@@ -212,6 +212,20 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                                 .attr("cy", y(matchingPoint.value));
                         }
                     });
+
+                    
+                    // Vertical dashed line at selected time
+                    const selectedTime = x(pointingTime);
+                    svg.append("line")
+                        .attr("class", "selectedTimeLine")
+                        .attr("x1", selectedTime)
+                        .attr("x2", selectedTime)
+                        .attr("y1", 0)
+                        .attr("y2", height)
+                        .attr("stroke", "red")
+                        .attr("stroke-dasharray", "4")
+                        .transition().duration(200);
+
                 } else {    // V-compare mode is not checked
                     d3.select(this).style("fill", "black"); // highlight point
                     tooltip.transition().duration(200).style("opacity", 1);
@@ -228,6 +242,8 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                     patients.forEach((patient, i) => {
                         svg.select(`.focus-circle-${i}`).style("display", "none");
                     });
+
+                    svg.selectAll(".selectedTimeLine").remove();
                 } else {
                     d3.select(this).style("fill", "transparent");
                 }
