@@ -270,4 +270,25 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                 }
             }
         });
+
+    // Add mode in the legend
+    const mode = svg.append("g")
+                    .attr("class", "mode")
+                    .attr("transform",`translate(-100,-10)`);
+    mode.append("text")
+        .attr("x", width - 30)
+        .attr("y", 0)
+        .attr("dy", ".35em")
+        .style("text-anchor", "end")
+        .style("font-size", "12px")
+        .text("V-compare");
+
+    mode.append("foreignObject")
+        .attr("x", width + -30)
+        .attr("y", -10)
+        .attr("width", 20)
+        .attr("height", 20)
+        .append("xhtml:input")
+        .attr("type", "checkbox")
+        .property("checked", false); // Initially not checked
   });
