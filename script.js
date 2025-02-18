@@ -252,14 +252,14 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                     if (checkedCount === 8) {
                         d3.selectAll("input[type='checkbox']").property("checked", true);
                         allLines.style("display", "block");
-                        allCircles.style("display", "block");
+                        allCircles.style("display", "none");
                     }
                 } else {
                     // Step 5: If only one checkbox is checked and it's unchecked, reset to all
                     if (checkedCount === 1) {
                         d3.selectAll("input[type='checkbox']").property("checked", true);
                         allLines.style("display", "block");
-                        allCircles.style("display", "block");
+                        allCircles.style("display", "none");
                         checkedCount = 8;
                     } else {
                         // Otherwise, just hide the unchecked line + circles
