@@ -226,7 +226,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         .on("change", function(event, d) {
             const selectedIndex = patients.indexOf(d);
             const allLines = svg.selectAll(".line");
-            const allCircles = svg.selectAll("circle");
+            const allCircles = svg.selectAll(".circle");
             const isChecked = this.checked;
 
             if (checkedCount === 8) {
@@ -248,18 +248,18 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                        .style("display", "block");
                     checkedCount++;
 
-                    // Step 4: If count reaches 8 again, reset to all checked
-                    if (checkedCount === 8) {
-                        d3.selectAll("input[type='checkbox']").property("checked", true);
-                        allLines.style("display", "block");
-                        allCircles.style("display", "none");
-                    }
+                    // // Step 4: If count reaches 8 again, reset to all checked, NOT NECESSARY, SINCE IF REACH 8 THEN IT IS 8
+                    // if (checkedCount === 8) {
+                    //     d3.selectAll("input[type='checkbox']").property("checked", true);
+                    //     allLines.style("display", "block");
+                    //     allCircles.style("display", "none");
+                    // }
                 } else {
                     // Step 5: If only one checkbox is checked and it's unchecked, reset to all
                     if (checkedCount === 1) {
                         d3.selectAll("input[type='checkbox']").property("checked", true);
                         allLines.style("display", "block");
-                        allCircles.style("display", "none");
+                        allCircles.style("display", "block");
                         checkedCount = 8;
                     } else {
                         // Otherwise, just hide the unchecked line + circles
