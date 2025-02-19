@@ -18,7 +18,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         const minutes = Math.round((d.time - hours) * 100);
         if (d.time < 0) {
             // If negative time, e.g., -0.20 -> "Time Before Lunch"
-            d.timeString = `-00:${Math.abs(100-minutes)}`;
+            d.timeString = `-00:${Math.abs(100 - minutes)}`;
         } else {
             d.timeString = `0${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
         }
@@ -125,9 +125,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
           
                 // 2) Show tooltip if we found a valid closest point
                 if (closestPoint) {
-                    // V-compare mode is checked
                     if (vc_checked){
-
                         patients.forEach((patient, i) => {
                             if ( linesSelected.length === 0 || linesSelected.includes(i)){
                                 const patientData = data.filter(d => !isNaN(d[patient]));
@@ -143,7 +141,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                                         .attr("cx", x(matchingPoint.timeString))
                                         .attr("cy", y(matchingPoint.value));
                                 }
-                            } else {}
+                            }
                         });
                     } else { // V-compare mode is not checked
                         focusCircle
@@ -151,10 +149,12 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                             .attr("cx", x(closestPoint.timeString))
                             .attr("cy", y(closestPoint.value));
                         
+                        // Set label based on the timeString value
+                        const label = (closestPoint.timeString.charAt(0) === '-') ? "Time Before Lunch:" : "Time After Lunch:";
                         tooltip
                             .style("opacity", 1)
                             .html(`
-                            <strong>Time After Lunch:</strong> ${closestPoint.timeString}<br>
+                            <strong>${label}</strong> ${closestPoint.timeString}<br>
                             <strong>${closestPoint.patient} Glucose:</strong> ${closestPoint.value}
                             `)
                             .style("left", (event.pageX + 10) + "px")
@@ -173,8 +173,6 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                 }
                 
                 tooltip.style("opacity", 0);
-
-                
               });
             // .on("mouseover", function(event, d) {
             //     d3.select(this).style("stroke-width", "4px"); // highlight line
@@ -195,7 +193,6 @@ d3.csv("data/glucose_lunch.csv").then(data => {
             .style("fill", "transparent")
             .style("pointer-events", "all")
             .on("mouseover", function(event, d) {
-                // V-compare mode is checked
                 if (vc_checked){
                     const pointingTime = this.__data__.timeString;
                     const matchingPointsArray = [];
@@ -234,11 +231,12 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                         .attr("stroke-dasharray", "4")
                         .transition().duration(200);
 
-                    // create tooltip
+                    // create tooltip with dynamic label
                     tooltip.transition().duration(200).style("opacity", 1);
                     tooltip.html("");
+                    const label = (this.__data__.timeString.charAt(0) === '-') ? "Time Before Lunch:" : "Time After Lunch:";
                     tooltip.append("div").html(`
-                        <strong>Time After Lunch:</strong> ${this.__data__.timeString}
+                        <strong>${label}</strong> ${this.__data__.timeString}
                         `);
                     for (let point of matchingPointsArray.sort((a,b) => b.value - a.value)){
                         tooltip.append("div").html(`
@@ -251,9 +249,10 @@ d3.csv("data/glucose_lunch.csv").then(data => {
 
                 } else {    // V-compare mode is not checked
                     d3.select(this).style("fill", "black"); // highlight point
+                    const label = (d.timeString.charAt(0) === '-') ? "Time Before Lunch:" : "Time After Lunch:";
                     tooltip.transition().duration(200).style("opacity", 1);
                     tooltip.html(`
-                        <strong>Time After Lunch:</strong> ${d.timeString} <br>
+                        <strong>${label}</strong> ${d.timeString} <br>
                         <strong>${d.patient} Glucose:</strong> ${d.value}
                     `)
                     .style("left", (event.pageX + 10) + "px")
@@ -406,4 +405,4 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                 vc_checked = false;
             }
         });
-  });
+});
