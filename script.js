@@ -342,13 +342,14 @@ d3.csv("data/glucose_lunch.csv").then(data => {
 
     legend.append("rect")
         .attr("x", width - 18)
+        .attr("y", -7)
         .attr("width", 12)
         .attr("height", 12)
         .attr("class", (d, i) => `legend-color-${i}`);
 
     legend.append("text")
         .attr("x", width - 24)
-        .attr("y", 6)
+        .attr("y", -2)
         .attr("dy", ".35em")
         .style("text-anchor", "end")
         .style("font-size", "10px")
@@ -359,8 +360,8 @@ d3.csv("data/glucose_lunch.csv").then(data => {
     // Add checkboxes in the legend
     legend.append("foreignObject")
         .attr("class", "lineSelect")
-        .attr("x", width - 0)
-        .attr("y", -5)
+        .attr("x", width - 5)
+        .attr("y", -10)
         .attr("width", 20)
         .attr("height", 20)
         .append("xhtml:input")
