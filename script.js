@@ -147,7 +147,8 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                         focusCircle
                             .style("display", null) // un-hide
                             .attr("cx", x(closestPoint.timeString))
-                            .attr("cy", y(closestPoint.value));
+                            .attr("cy", y(closestPoint.value))
+                            .raise();
                         
                         // Set label based on the timeString value
                         const label = (closestPoint.timeString.charAt(0) === '-') ? "Time Before Lunch:" : "Time After Lunch:";
