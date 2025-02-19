@@ -4,7 +4,7 @@ const info_data = [
     { state: "❗️Diabetes", fasting: ">126 mg/dL", beforeMeals: ">126 mg/dL", afterMeals: "≥200 mg/dL", heATC: "≥6.5%" }
 ];
 
-const columns = ["STATE", "FASTING", "BEFORE MEALS", "1-2 HOURS AFTER MEALS", "A1C"];
+const columns = ["STATE", "FASTING", "BEFORE MEALS", "1-2 HOURS AFTER MEALS", "HBA1C"];
 
 const table = d3.select("#info")
     .append("table");
@@ -87,6 +87,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
 
     // X axis label
     svg.append("text")
+    .attr("class", "axis-label")
     .attr("text-anchor", "end")
     .attr("x", 400)
     .attr("y", 375)
@@ -102,6 +103,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
 
      // Y axis label
      svg.append("text")
+     .attr("class", "axis-label")
      .attr("text-anchor", "end")
      .attr("transform", "rotate(-90)")
      .attr("y", -35)
