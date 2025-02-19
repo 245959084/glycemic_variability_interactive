@@ -25,15 +25,14 @@ d3.csv("data/glucose_lunch.csv").then(data => {
     });
 
     // Set the dimensions and margins of the graph
-    const margin = {top: 20, right: 30, bottom: 50, left: 40};
+    const margin = {top: 20, right: 40, bottom: 50, left: 40};
     const width = 800 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
     // Append the SVG object
     const svg = d3.select("#chart")
         .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
     console.log("SVG created");
@@ -148,7 +147,8 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                             .style("display", null) // un-hide
                             .attr("cx", x(closestPoint.timeString))
                             .attr("cy", y(closestPoint.value))
-                            .raise();
+                            // .raise();
+                            ;
                         
                         // Set label based on the timeString value
                         const label = (closestPoint.timeString.charAt(0) === '-') ? "Time Before Lunch:" : "Time After Lunch:";
@@ -158,8 +158,8 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                             <strong>${label}</strong> ${closestPoint.timeString}<br>
                             <strong>${closestPoint.patient} Glucose:</strong> ${closestPoint.value}
                             `)
-                            .style("left", (event.pageX + 10) + "px")
-                            .style("top", (event.pageY - 20) + "px");
+                            .style("left", (event.pageX + 15) + "px")
+                            .style("top", (event.pageY + 15) + "px");
                     }
                 }
               })
@@ -245,8 +245,8 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                         `);
                     }
 
-                    tooltip.style("left", (event.pageX + 10) + "px")
-                            .style("top", (event.pageY - 20) + "px");
+                    tooltip.style("left", (event.pageX + 15) + "px")
+                            .style("top", (event.pageY + 15) + "px");
 
                 } else {    // V-compare mode is not checked
                     d3.select(this).style("fill", "black"); // highlight point
@@ -256,8 +256,8 @@ d3.csv("data/glucose_lunch.csv").then(data => {
                         <strong>${label}</strong> ${d.timeString} <br>
                         <strong>${d.patient} Glucose:</strong> ${d.value}
                     `)
-                    .style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 20) + "px");
+                    .style("left", (event.pageX + 15) + "px")
+                    .style("top", (event.pageY + 15) + "px");
                 }
             })
             .on("mouseout", function() {
@@ -278,13 +278,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
 
     // Tooltip
     const tooltip = d3.select("body").append("div")
-        .style("position", "absolute")
-        .style("opacity", 0)
-        .style("pointer-events", "none")
-        .style("background", "white")
-        .style("border", "1px solid black")
-        .style("padding", "5px")
-        .style("font-size", "12px");
+        .attr("class", "tooltip")
 
     // Legend
     const legend = svg.selectAll(".legend")
@@ -374,36 +368,34 @@ d3.csv("data/glucose_lunch.csv").then(data => {
             }
         });
 
-    // Add mode in the legend
-    // global variable
-    let vc_checked = false;
-    let linesSelected = [];
-
-    const mode = svg.append("g")
-                    .attr("class", "mode")
-                    .attr("transform",`translate(-100,-10)`);
-    mode.append("text")
-        .attr("x", width - 30)
-        .attr("y", 0)
-        .attr("dy", ".35em")
-        .style("text-anchor", "end")
-        .style("font-size", "12px")
-        .text("V-compare");
-
-    mode.append("foreignObject")
-        .attr("class", "mode")
-        .attr("x", width + -30)
-        .attr("y", -10)
-        .attr("width", 20)
-        .attr("height", 20)
-        .append("xhtml:input")
-        .attr("type", "checkbox")
-        .property("checked", false) // Initially not checked
-        .on("change",function() {
-            if (this.checked){
-                vc_checked = true;
-            } else {
-                vc_checked = false;
-            }
-        });
-});
+        let vc_checked = false;
+        let linesSelected = [];
+    
+        const mode = svg.append("g")
+                        .attr("class", "mode")
+                        .attr("transform",`translate(-310,-10)`);
+        mode.append("text")
+            .attr("x", width - 30)
+            .attr("y", 0)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .style("font-size", "12px")
+            .text("V-compare");
+    
+        mode.append("foreignObject")
+            .attr("class", "mode")
+            .attr("x", width + -30)
+            .attr("y", -10)
+            .attr("width", 20)
+            .attr("height", 20)
+            .append("xhtml:input")
+            .attr("type", "checkbox")
+            .property("checked", false) // Initially not checked
+            .on("change",function() {
+                if (this.checked){
+                    vc_checked = true;
+                } else {
+                    vc_checked = false;
+                }
+            });
+    });

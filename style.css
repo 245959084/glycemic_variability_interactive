@@ -1,16 +1,71 @@
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
+    background-color: #ffffff;
+    color: #333;
 }
 
 h1 {
+    background-color: #82b8e5;
     text-align: center;
+    color: #f1f3f5;
+    padding: 1rem;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+h2 {
+    text-align: center;
+    color: #000000;
+    padding: 1rem;
+}
+
+p {
+    text-align: left;
+    margin-bottom: 1rem;
+    padding-left: 1.6rem;
+    padding-bottom: 1rem;
+    line-height: 1.5;
+}  
+
+a {
+    color: #2171b5; /* Link color */
+    text-decoration: none; /* Remove underline */
+}
+
+a:hover {
+    text-decoration: underline; /* Underline on hover */
+    color: #125a9e; /* Darker color on hover */
 }
 
 #chart {
+    position: relative; /* Added for positioning the checkbox */
     margin: auto;
     width: 80%;
     height: 600px;
+    max-width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* Style for the V-compare checkbox */
+.mode-button .vc-button {
+    display: inline-block;
+    padding: 5px 10px;
+    border: 1px solid #2171b5;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #2171b5;
+    cursor: pointer;
+}
+
+.mode-button .vc-button.active {
+    background-color: #2171b5;
+    color: #fff;
 }
 
 .line {
@@ -19,14 +74,6 @@ h1 {
 }
 
 /* Legend colors from shallow to deep blue */
-/* .line-color-0, .legend-color-0 { stroke: #7cbcf8; fill: #7cbcf8; }
-.line-color-1, .legend-color-1 { stroke: #ff8989; fill: #ff8989; }
-.line-color-2, .legend-color-2 { stroke: #3082af; fill: #3082af; }
-.line-color-3, .legend-color-3 { stroke: #ff3b3b; fill: #ff3b3b; }
-.line-color-4, .legend-color-4 { stroke: #1669a0; fill: #1669a0; }
-.line-color-5, .legend-color-5 { stroke: #d80000; fill: #d80000; }
-.line-color-6, .legend-color-6 { stroke: #9d0000; fill: #9d0000; }
-.line-color-7, .legend-color-7 { stroke: #0d4393; fill: #0d4393; } */
 .line-color-0, .legend-color-0 { stroke: #deebf7; fill: #deebf7; }
 .line-color-1, .legend-color-1 { stroke: #c6dbef; fill: #c6dbef; }
 .line-color-2, .legend-color-2 { stroke: #9ecae1; fill: #9ecae1; }
@@ -35,3 +82,32 @@ h1 {
 .line-color-5, .legend-color-5 { stroke: #2171b5; fill: #2171b5; }
 .line-color-6, .legend-color-6 { stroke: #08519c; fill: #08519c; }
 .line-color-7, .legend-color-7 { stroke: #08306b; fill: #08306b; }
+
+
+#chart {
+    margin: auto;
+    width: 100%;
+    height: 100%;
+    max-width: 80%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fffffa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* Tooltip styling */
+.tooltip {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #2171b5;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 12px;
+    color: #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    line-height: 1.5;
+}
+
+/* Check box */
