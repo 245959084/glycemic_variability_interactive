@@ -1,3 +1,39 @@
+const info_data = [
+    { state: "✅ Normal", fasting: "70-99 mg/dL", beforeMeals: "70-99 mg/dL", afterMeals: "<140 mg/dL", heATC: "<5.7%" },
+    { state: "❕Prediabetes", fasting: "100-125 mg/dL", beforeMeals: "100-125 mg/dL", afterMeals: "140-199 mg/dL", heATC: "5.7-6.4%" },
+    { state: "❗️Diabetes", fasting: ">126 mg/dL", beforeMeals: ">126 mg/dL", afterMeals: "≥200 mg/dL", heATC: "≥6.5%" }
+];
+
+const columns = ["STATE", "FASTING", "BEFORE MEALS", "1-2 HOURS AFTER MEALS", "A1C"];
+
+const table = d3.select("#info")
+    .append("table");
+
+// Append the header row
+table.append("thead")
+    .append("tr")
+    .selectAll("th")
+    .data(columns)
+    .enter()
+    .append("th")
+    .text(d => d);
+
+// Append the data rows
+const rows = table.append("tbody")
+    .selectAll("tr")
+    .data(info_data)
+    .enter()
+    .append("tr");
+
+// Append cells for each row
+rows.selectAll("td")
+    .data(d => [d.state, d.fasting, d.beforeMeals, d.afterMeals, d.heATC])
+    .enter()
+    .append("td")
+    .text(d => d);
+
+
+
 d3.csv("data/glucose_lunch.csv").then(data => {
     console.log("Data loaded:", data);
 
@@ -25,7 +61,7 @@ d3.csv("data/glucose_lunch.csv").then(data => {
     });
 
     // Set the dimensions and margins of the graph
-    const margin = {top: 20, right: 40, bottom: 50, left: 40};
+    const margin = {top: 20, right: 40, bottom: 55, left: 50};
     const width = 800 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -49,6 +85,13 @@ d3.csv("data/glucose_lunch.csv").then(data => {
         .style("text-anchor", "end");
     console.log("X axis added");
 
+    // X axis label
+    svg.append("text")
+    .attr("text-anchor", "end")
+    .attr("x", 400)
+    .attr("y", 375)
+    .text("Time (HH:MM)");
+
     // Y axis
     const y = d3.scaleLinear()
         .domain([60, 220])
@@ -56,6 +99,14 @@ d3.csv("data/glucose_lunch.csv").then(data => {
     svg.append("g")
         .call(d3.axisLeft(y));
     console.log("Y axis added");
+
+     // Y axis label
+     svg.append("text")
+     .attr("text-anchor", "end")
+     .attr("transform", "rotate(-90)")
+     .attr("y", -35)
+     .attr("x", -65)
+     .text("Glucose Concentration (mg/dL)");
 
     // Vertical dashed line at 00:00 (Lunch Time)
     const lunchTimeX = x("00:00");

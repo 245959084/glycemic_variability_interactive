@@ -7,14 +7,20 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>How Do patients' Clucose Concentration Respond to Lunch?</h1>
-    <h2>Interstitial Glucose Concentration vs Time for 8 Prediabetes Patient (Oderderd by A1C)</h2>
+    <h1>How Do patients' Glucose Concentration Respond to Lunch?</h1>
+    <h2>Interstitial Glucose Concentration vs Time for 8 Prediabetes Patient (Oderderd by HBA1C)</h2>
     <p>-> Select the checkbox beside each patient to compare their glucose changes. 
         <br>-> Select the V-compare to allow multi-person comparison of glucose in tooltip.
         <br>-> <a href="https://github.com/245959084/glycemic_variability_interactive" target="_blank">More information about this visualization.</a></p>
+
+
+    <div id="info"></div>
+
+
     <div id="chart"></div>
 
-    <p>* A1C measures the average blood sugar (glucose) levels over the past 2-3 months</p>
+    <p>* The First element in tuple is the gender of patient (Male/ Female)
+        <br> * The Second element in tuple is the HBA1C which measures the average blood sugar (glucose) levels over the past 2-3 months</p>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="script.js"></script>
 </body>
